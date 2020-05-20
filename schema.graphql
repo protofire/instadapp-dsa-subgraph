@@ -1,0 +1,38 @@
+type User @entity {
+  id: ID!
+
+  smartAccountsOwned: [SmartAccount!]! @derivedFrom(field:"owner")
+
+  smartAccountsCreated: [SmartAccount!]! @derivedFrom(field:"creator")
+}
+
+type SmartAccount @entity {
+  id: ID!
+
+  owner: User!
+
+  creator: User!
+
+  origin: String!
+}
+
+type AccountModule @entity {
+  "ID is the account module version"
+  id: ID!
+
+  version: Int
+
+  connectors: String!
+
+  check: String!
+
+  instaIndex: InstaIndex!
+}
+
+type InstaIndex @entity {
+  id: ID!
+
+  master: String
+
+  accountModules: [AccountModule!]! @derivedFrom(field: "instaIndex")
+}
