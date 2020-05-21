@@ -3,5 +3,6 @@ export {
   handleLogNewAccount,
   handleLogNewCheck,
   handleLogNewMaster,
-  handleLogUpdateMaster
+  handleLogUpdateMaster,
+  handleSetBasics
 } from "./mappings/instaIndex";

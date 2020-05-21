@@ -5,12 +5,14 @@ import {
   LogNewCheck,
   LogNewMaster,
   LogUpdateMaster,
+  SetBasicsCall,
   InstaIndex
 } from "../../generated/InstaIndex/InstaIndex";
 import {
   getOrCreateAccountModule,
   getOrCreateUser,
-  getOrCreateSmartAccount
+  getOrCreateSmartAccount,
+  getOrCreateInstaIndex
 } from '../utils/helpers'
 
 // - event: LogAccountCreated(address,indexed address,indexed address,indexed address)
@@ -24,7 +26,7 @@ export function handleLogAccountCreated(event: LogAccountCreated): void {
   let sender = getOrCreateUser(event.params.sender.toHexString())
 
   smartAccount.owner = owner.id;
-  smartAccount.sender = sender.id;
+  smartAccount.creator = sender.id;
   smartAccount.origin = event.params.origin.toHexString();
 
   smartAccount.save();
@@ -78,4 +80,17 @@ export function handleLogUpdateMaster(event: LogUpdateMaster): void {
   index.master = event.params.master.toHexString();
 
   index.save();
+}
+
+// - event: LogUpdateMaster(indexed address)
+//   handler: handleLogUpdateMaster
+
+export function handleSetBasics(call: SetBasicsCall): void {
+  let accountVersion = InstaIndex.bind(call.to).versionCount();
+  let accountModule = getOrCreateAccountModule(accountVersion.toString())
+
+  accountModule.address = call.inputs._account.toHexString();
+  accountModule.connectors = call.inputs._connectors.toHexString();
+
+  accountModule.save();
 }

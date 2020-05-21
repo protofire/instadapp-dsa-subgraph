@@ -50,7 +50,7 @@ export function getOrCreateAccountModule(
 export function getOrCreateInstaIndex(): InstaIndex {
   let index = InstaIndex.load("INDEX");
 
-  if (index == null && createIfNotFound) {
+  if (index == null) {
     index = new InstaIndex("INDEX");
     index.save();
   }

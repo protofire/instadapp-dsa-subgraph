@@ -20,11 +20,11 @@ type AccountModule @entity {
   "ID is the account module version"
   id: ID!
 
-  version: Int
+  address: String!
 
   connectors: String!
 
-  check: String!
+  check: String
 
   instaIndex: InstaIndex!
 }
