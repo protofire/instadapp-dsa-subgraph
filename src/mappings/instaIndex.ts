@@ -1,4 +1,3 @@
-import { SmartAccount, User } from "../../generated/schema";
 import {
   LogAccountCreated,
   LogNewAccount,
@@ -13,9 +12,9 @@ import {
   getOrCreateAccountModule,
   getOrCreateUser,
   getOrCreateSmartAccount,
+  getOrCreateInstaConnector,
   getOrCreateInstaIndex
 } from "../utils/helpers";
-
 // - event: LogAccountCreated(address,indexed address,indexed address,indexed address)
 //   handler: handleLogAccountCreated
 //  Creation of new smart account for user
@@ -44,9 +43,10 @@ export function handleLogNewAccount(event: LogNewAccount): void {
   // current account version has to be retrieved from the contract
   let accountVersion = InstaIndex.bind(event.address).versionCount();
   let accountModule = getOrCreateAccountModule(accountVersion.toString());
+  let instaConnector = getOrCreateInstaConnector(event.params._connectors);
 
   accountModule.address = event.params._newAccount.toHexString();
-  accountModule.connectors = event.params._connectors.toHexString();
+  accountModule.connectors = instaConnector.id;
   accountModule.check = event.params._check.toHexString();
 
   accountModule.save();
@@ -90,9 +90,10 @@ export function handleLogUpdateMaster(event: LogUpdateMaster): void {
 export function handleSetBasics(call: SetBasicsCall): void {
   let accountVersion = InstaIndex.bind(call.to).versionCount();
   let accountModule = getOrCreateAccountModule(accountVersion.toString());
+  let instaConnector = getOrCreateInstaConnector(call.inputs._connectors);
 
   accountModule.address = call.inputs._account.toHexString();
-  accountModule.connectors = call.inputs._connectors.toHexString();
+  accountModule.connectors = instaConnector.id;
 
   accountModule.save();
 }

@@ -38,3 +38,32 @@ dataSources:
           handler: handleSetBasics
         - function: build(address,uint256,address)
           handler: handleBuild
+templates:
+  - name: InstaConnectors
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: InstaConnectors
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/index.ts
+      entities:
+        - InstaConnector
+        - Connector
+      abis:
+        - name: InstaConnectors
+          file: ./abis/InstaConnectors.json
+      eventHandlers:
+        - event: LogDisable(indexed address)
+          handler: handleLogDisableConnector
+        - event: LogEnable(indexed address)
+          handler: handleLogEnableConnector
+        - event: LogEnableStatic(indexed address)
+          handler: handleLogEnableStaticConnector
+  # - LogAddController(indexed address)
+  # - LogDisable(indexed address)
+  # - LogEnable(indexed address)
+  # - LogEnableStatic(indexed address)
+  # - LogRemoveController(indexed address)

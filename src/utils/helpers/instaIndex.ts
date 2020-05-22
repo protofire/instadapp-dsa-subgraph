@@ -1,4 +1,9 @@
-import { User, SmartAccount, AccountModule, InstaIndex } from "../../../generated/schema";
+import {
+  User,
+  SmartAccount,
+  AccountModule,
+  InstaIndex
+} from "../../../generated/schema";
 
 export function getOrCreateUser(
   id: String,

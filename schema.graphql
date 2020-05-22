@@ -24,7 +24,7 @@ type AccountModule @entity {
 
   address: String!
 
-  connectors: String!
+  connectors: InstaConnector!
 
   check: String
 
@@ -39,4 +39,21 @@ type InstaIndex @entity {
   master: String
 
   accountModules: [AccountModule!]! @derivedFrom(field: "instaIndex")
+}
+
+type InstaConnector @entity {
+  "Address of the InstaConnector contract. This contract has a list of connectors tracked."
+  id: ID!
+
+  connectors: [Connector!]! @derivedFrom(field: "instaConnector")
+}
+
+type Connector @entity {
+  id: ID!
+
+  isStatic: Boolean!
+
+  isEnabled: Boolean!
+
+  instaConnector: InstaConnector!
 }
