@@ -45,15 +45,34 @@ type InstaConnector @entity {
   "Address of the InstaConnector contract. This contract has a list of connectors tracked."
   id: ID!
 
+  chiefs: [Chief!]! @derivedFrom(field: "instaConnector")
+
   connectors: [Connector!]! @derivedFrom(field: "instaConnector")
 }
 
 type Connector @entity {
+  "Connector ID includes the ID of the InstaConnector it belongs to and the internal ID of the connector"
   id: ID!
 
   isStatic: Boolean!
 
   isEnabled: Boolean!
+
+  instaConnector: InstaConnector!
+
+  name: String!
+
+  connectorID: BigInt!
+
+  connectorType: BigInt!
+
+  address: String!
+}
+
+type Chief @entity {
+  id: ID!
+
+  isActive: Boolean!
 
   instaConnector: InstaConnector!
 }

@@ -7,5 +7,6 @@ export {
 
 export {
   getOrCreateConnector,
-  getOrCreateInstaConnector
+  getOrCreateInstaConnector,
+  getOrCreateChief
 } from "./instaConnectors";

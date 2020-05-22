@@ -1,0 +1,33 @@
+[
+  {
+    "inputs": [],
+    "name": "connectorID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_type",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

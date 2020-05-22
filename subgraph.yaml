@@ -55,6 +55,8 @@ templates:
       abis:
         - name: InstaConnectors
           file: ./abis/InstaConnectors.json
+        - name: Connector
+          file: ./abis/Connector.json
       eventHandlers:
         - event: LogDisable(indexed address)
           handler: handleLogDisableConnector
@@ -62,6 +64,10 @@ templates:
           handler: handleLogEnableConnector
         - event: LogEnableStatic(indexed address)
           handler: handleLogEnableStaticConnector
+        - event: LogAddController(indexed address)
+          handler: handleLogAddController
+        - event: LogRemoveController(indexed address)
+          handler: handleLogRemoveController
   # - LogAddController(indexed address)
   # - LogDisable(indexed address)
   # - LogEnable(indexed address)
