@@ -6,6 +6,7 @@ import {
   LogNewMaster,
   LogUpdateMaster,
   SetBasicsCall,
+  BuildCall,
   InstaIndex
 } from "../../generated/InstaIndex/InstaIndex";
 import {
@@ -13,7 +14,7 @@ import {
   getOrCreateUser,
   getOrCreateSmartAccount,
   getOrCreateInstaIndex
-} from '../utils/helpers'
+} from "../utils/helpers";
 
 // - event: LogAccountCreated(address,indexed address,indexed address,indexed address)
 //   handler: handleLogAccountCreated
@@ -21,9 +22,11 @@ import {
 //  event LogAccountCreated(address sender, address indexed owner, address indexed account, address indexed origin);
 
 export function handleLogAccountCreated(event: LogAccountCreated): void {
-  let smartAccount = getOrCreateSmartAccount(event.params.account.toHexString());
-  let owner = getOrCreateUser(event.params.owner.toHexString())
-  let sender = getOrCreateUser(event.params.sender.toHexString())
+  let smartAccount = getOrCreateSmartAccount(
+    event.params.account.toHexString()
+  );
+  let owner = getOrCreateUser(event.params.owner.toHexString());
+  let sender = getOrCreateUser(event.params.sender.toHexString());
 
   smartAccount.owner = owner.id;
   smartAccount.creator = sender.id;
@@ -40,7 +43,7 @@ export function handleLogAccountCreated(event: LogAccountCreated): void {
 export function handleLogNewAccount(event: LogNewAccount): void {
   // current account version has to be retrieved from the contract
   let accountVersion = InstaIndex.bind(event.address).versionCount();
-  let accountModule = getOrCreateAccountModule(accountVersion.toString())
+  let accountModule = getOrCreateAccountModule(accountVersion.toString());
 
   accountModule.address = event.params._newAccount.toHexString();
   accountModule.connectors = event.params._connectors.toHexString();
@@ -53,7 +56,9 @@ export function handleLogNewAccount(event: LogNewAccount): void {
 //   handler: handleLogNewCheck
 
 export function handleLogNewCheck(event: LogNewCheck): void {
-  let accountModule = getOrCreateAccountModule(event.params.accountVersion.toString());
+  let accountModule = getOrCreateAccountModule(
+    event.params.accountVersion.toString()
+  );
 
   accountModule.check = event.params.check.toHexString();
 
@@ -82,15 +87,25 @@ export function handleLogUpdateMaster(event: LogUpdateMaster): void {
   index.save();
 }
 
-// - event: LogUpdateMaster(indexed address)
-//   handler: handleLogUpdateMaster
-
 export function handleSetBasics(call: SetBasicsCall): void {
   let accountVersion = InstaIndex.bind(call.to).versionCount();
-  let accountModule = getOrCreateAccountModule(accountVersion.toString())
+  let accountModule = getOrCreateAccountModule(accountVersion.toString());
 
   accountModule.address = call.inputs._account.toHexString();
   accountModule.connectors = call.inputs._connectors.toHexString();
 
   accountModule.save();
+}
+
+export function handleBuild(call: BuildCall): void {
+  let smartAccount = getOrCreateSmartAccount(
+    call.outputs._account.toHexString()
+  );
+  let owner = getOrCreateUser(call.inputs._owner.toHexString());
+
+  smartAccount.owner = owner.id;
+  smartAccount.origin = call.inputs._origin.toHexString();
+  smartAccount.accountModule = call.inputs.accountVersion.toString();
+
+  smartAccount.save();
 }

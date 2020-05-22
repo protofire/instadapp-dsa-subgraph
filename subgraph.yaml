@@ -36,3 +36,5 @@ dataSources:
       callHandlers:
         - function: setBasics(address,address,address,address)
           handler: handleSetBasics
+        - function: build(address,uint256,address)
+          handler: handleBuild

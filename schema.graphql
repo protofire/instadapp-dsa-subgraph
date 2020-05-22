@@ -11,9 +11,11 @@ type SmartAccount @entity {
 
   owner: User!
 
-  creator: User!
+  creator: User
 
   origin: String!
+
+  accountModule: AccountModule
 }
 
 type AccountModule @entity {
@@ -27,6 +29,8 @@ type AccountModule @entity {
   check: String
 
   instaIndex: InstaIndex!
+
+  accountsCloned: [SmartAccount!]! @derivedFrom(field: "accountModule")
 }
 
 type InstaIndex @entity {
