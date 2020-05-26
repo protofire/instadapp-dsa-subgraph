@@ -15,3 +15,10 @@ export {
   handleLogAddController,
   handleLogRemoveController
 } from "./mappings/instaConnectors";
+
+export {
+  handleLogEnableSmartAccountOwner,
+  handleLogDisableSmartAccountOwner,
+  handleLogSwitchShield,
+  handleLogCast
+} from "./mappings/instaAccount";

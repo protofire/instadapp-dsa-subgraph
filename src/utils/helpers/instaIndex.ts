@@ -4,6 +4,8 @@ import {
   AccountModule,
   InstaIndex
 } from "../../../generated/schema";
+import { InstaAccount as AccountTemplate } from "../../../generated/templates";
+import { Address } from "@graphprotocol/graph-ts";
 
 export function getOrCreateUser(
   id: String,
@@ -31,6 +33,7 @@ export function getOrCreateSmartAccount(
 
   if (smartAccount == null && createIfNotFound) {
     smartAccount = new SmartAccount(id);
+    AccountTemplate.create(Address.fromString(id))
   }
 
   return smartAccount as SmartAccount;

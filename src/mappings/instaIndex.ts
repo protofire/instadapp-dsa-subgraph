@@ -15,6 +15,7 @@ import {
   getOrCreateInstaConnector,
   getOrCreateInstaIndex
 } from "../utils/helpers";
+
 // - event: LogAccountCreated(address,indexed address,indexed address,indexed address)
 //   handler: handleLogAccountCreated
 //  Creation of new smart account for user
@@ -30,6 +31,7 @@ export function handleLogAccountCreated(event: LogAccountCreated): void {
   smartAccount.owner = owner.id;
   smartAccount.creator = sender.id;
   smartAccount.origin = event.params.origin.toHexString();
+  smartAccount.isEnabled = true;
 
   smartAccount.save();
 }

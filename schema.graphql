@@ -9,13 +9,22 @@ type User @entity {
 type SmartAccount @entity {
   id: ID!
 
-  owner: User!
+  "Latest enabled owner"
+  owner: User
 
   creator: User
 
   origin: String!
 
   accountModule: AccountModule
+
+  shield: Boolean
+
+  isEnabled: Boolean!
+
+  casts: [Cast!]! @derivedFrom(field: "account")
+
+  events: [SmartAccountEvent!]! @derivedFrom(field: "account")
 }
 
 type AccountModule @entity {
@@ -75,4 +84,46 @@ type Chief @entity {
   isActive: Boolean!
 
   instaConnector: InstaConnector!
+}
+
+type Cast @entity {
+  id: ID!
+
+  account: SmartAccount!
+
+  origin: String!
+
+  sender: String!
+
+  value: BigInt!
+}
+
+interface SmartAccountEvent {
+  id: ID!
+
+  account: SmartAccount!
+}
+
+type CastEvent implements SmartAccountEvent @entity {
+  id: ID!
+
+  account: SmartAccount!
+}
+
+type DisableEvent implements SmartAccountEvent @entity {
+  id: ID!
+
+  account: SmartAccount!
+}
+
+type EnableEvent implements SmartAccountEvent @entity {
+  id: ID!
+
+  account: SmartAccount!
+}
+
+type SwitchShieldEvent implements SmartAccountEvent @entity {
+  id: ID!
+
+  account: SmartAccount!
 }

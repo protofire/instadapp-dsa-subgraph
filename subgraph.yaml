@@ -68,8 +68,27 @@ templates:
           handler: handleLogAddController
         - event: LogRemoveController(indexed address)
           handler: handleLogRemoveController
-  # - LogAddController(indexed address)
-  # - LogDisable(indexed address)
-  # - LogEnable(indexed address)
-  # - LogEnableStatic(indexed address)
-  # - LogRemoveController(indexed address)
+  - name: InstaAccount
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: InstaAccount
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/index.ts
+      entities:
+        - SmartAccount
+      abis:
+        - name: InstaAccount
+          file: ./abis/InstaAccount.json
+      eventHandlers:
+        - event: LogCast(indexed address,indexed address,uint256)
+          handler: handleLogCast
+        - event: LogDisable(indexed address)
+          handler: handleLogDisableSmartAccountOwner
+        - event: LogEnable(indexed address)
+          handler: handleLogEnableSmartAccountOwner
+        - event: LogSwitchShield(bool)
+          handler: handleLogSwitchShield
