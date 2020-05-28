@@ -11,7 +11,8 @@ import {
   getOrCreateCastEvent,
   getOrCreateDisableEvent,
   getOrCreateEnableEvent,
-  getOrCreateSwitchShieldEvent
+  getOrCreateSwitchShieldEvent,
+  getOrCreateUser
 } from "../utils/helpers";
 import { log, Bytes } from '@graphprotocol/graph-ts';
 
@@ -30,6 +31,9 @@ export function handleLogCast(event: LogCast): void {
     let cast = getOrCreateCast(eventId);
 
     castEvent.account = account.id;
+    castEvent.origin = event.params.origin.toHexString();
+    castEvent.sender = event.params.sender.toHexString()
+    castEvent.value = event.params.value;
 
     cast.account = account.id;
     cast.origin = event.params.origin.toHexString();
@@ -52,10 +56,12 @@ export function handleLogDisableSmartAccountOwner(event: LogDisable): void {
     ]);
   } else {
     let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
+    let user = getOrCreateUser(event.params.user.toHexString());
     let disableEvent = getOrCreateDisableEvent(eventId)
     disableEvent.account = account.id;
+    disableEvent.user = user.id;
 
-    account.owner = event.params.user.toHexString();
+    account.owner = user.id;
     account.isEnabled = false;
 
     account.save()
@@ -74,10 +80,12 @@ export function handleLogEnableSmartAccountOwner(event: LogEnable): void {
     ]);
   } else {
     let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
+    let user = getOrCreateUser(event.params.user.toHexString());
     let enableEvent = getOrCreateEnableEvent(eventId)
     enableEvent.account = account.id;
+    enableEvent.user = user.id;
 
-    account.owner = event.params.user.toHexString();
+    account.owner = user.id;
     account.isEnabled = true;
 
     account.save()
@@ -97,7 +105,13 @@ export function handleLogSwitchShield(event: LogSwitchShield): void {
   } else {
     let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
     let switchEvent = getOrCreateSwitchShieldEvent(eventId)
+
     switchEvent.account = account.id;
+    switchEvent.shield = event.params._shield;
+
+    account.shield = event.params._shield;
+
     switchEvent.save();
+    account.save();
   }
 }

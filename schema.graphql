@@ -1,8 +1,10 @@
 type User @entity {
   id: ID!
 
+  "List of all the smart accounts currently owned by this user"
   smartAccountsOwned: [SmartAccount!]! @derivedFrom(field:"owner")
 
+  "List of all the smart accounts created by this user"
   smartAccountsCreated: [SmartAccount!]! @derivedFrom(field:"creator")
 }
 
@@ -12,18 +14,23 @@ type SmartAccount @entity {
   "Latest enabled owner"
   owner: User
 
+  "Sender of the creation transaction"
   creator: User
 
   origin: String!
 
+  "Account module from which this account was created. It holds the connectors linked to this account."
   accountModule: AccountModule
 
   shield: Boolean
 
+  "Whether the owner is currently enabled to use this account or not"
   isEnabled: Boolean!
 
+  "Casts made by this smart account"
   casts: [Cast!]! @derivedFrom(field: "account")
 
+  "Events that ocurred within this account scope"
   events: [SmartAccountEvent!]! @derivedFrom(field: "account")
 }
 
@@ -31,20 +38,24 @@ type AccountModule @entity {
   "ID is the account module version"
   id: ID!
 
+  "Base address of the module"
   address: String!
 
+  "InstaConnectors contract linked to this module. It holds a list of linked connectors as well as chief/admin information for that contract."
   connectors: InstaConnector!
 
   check: String
 
   instaIndex: InstaIndex!
 
+  "List of all the accounts that used this module."
   accountsCloned: [SmartAccount!]! @derivedFrom(field: "accountModule")
 }
 
 type InstaIndex @entity {
   id: ID!
 
+  "Address of the current master"
   master: String
 
   accountModules: [AccountModule!]! @derivedFrom(field: "instaIndex")
@@ -63,18 +74,25 @@ type Connector @entity {
   "Connector ID includes the ID of the InstaConnector it belongs to and the internal ID of the connector"
   id: ID!
 
+  "Whether this connector is a Static Connector or not."
   isStatic: Boolean!
 
+  "Whether this Connector is enabled or not."
   isEnabled: Boolean!
 
+  "InstaConnectors contract where this Connector is linked"
   instaConnector: InstaConnector!
 
+  "Connector name"
   name: String!
 
+  "Connector ID within the InstaConnectors contract"
   connectorID: BigInt!
 
+  "Connector type."
   connectorType: BigInt!
 
+  "Address for said connector"
   address: String!
 }
 
@@ -89,6 +107,7 @@ type Chief @entity {
 type Cast @entity {
   id: ID!
 
+  "Account that triggered the cast"
   account: SmartAccount!
 
   origin: String!
@@ -101,6 +120,7 @@ type Cast @entity {
 interface SmartAccountEvent {
   id: ID!
 
+  "Account scope of the event"
   account: SmartAccount!
 }
 
@@ -108,22 +128,34 @@ type CastEvent implements SmartAccountEvent @entity {
   id: ID!
 
   account: SmartAccount!
+
+  origin: String!
+
+  sender: String!
+
+  value: BigInt!
 }
 
 type DisableEvent implements SmartAccountEvent @entity {
   id: ID!
 
   account: SmartAccount!
+
+  user: User!
 }
 
 type EnableEvent implements SmartAccountEvent @entity {
   id: ID!
 
   account: SmartAccount!
+
+  user: User!
 }
 
 type SwitchShieldEvent implements SmartAccountEvent @entity {
   id: ID!
 
   account: SmartAccount!
+
+  shield: Boolean!
 }

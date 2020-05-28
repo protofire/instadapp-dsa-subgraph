@@ -33,6 +33,8 @@ export function getOrCreateSmartAccount(
 
   if (smartAccount == null && createIfNotFound) {
     smartAccount = new SmartAccount(id);
+
+    smartAccount.shield = false;
     AccountTemplate.create(Address.fromString(id))
   }
 
