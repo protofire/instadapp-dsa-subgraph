@@ -5,6 +5,7 @@ import {
   LogSwitchShield,
   CastCall
 } from "../../generated/templates/InstaAccount/InstaAccount";
+import { InstaList } from "../../generated/InstaIndex/InstaList";
 import {
   getOrCreateSmartAccount,
   getOrCreateCast,
@@ -12,32 +13,39 @@ import {
   getOrCreateDisableEvent,
   getOrCreateEnableEvent,
   getOrCreateSwitchShieldEvent,
-  getOrCreateUser
+  getOrCreateUser,
+  getOrCreateInstaIndex
 } from "../utils/helpers";
-import { log, Bytes } from '@graphprotocol/graph-ts';
+import { log, Bytes, Address } from "@graphprotocol/graph-ts";
 
 //- event: LogCast(indexed address,indexed address,uint256)
 //   handler: handleLogCast
 
 export function handleLogCast(event: LogCast): void {
-  let account = getOrCreateSmartAccount(event.address.toHexString(), false);
+  let instaIndex = getOrCreateInstaIndex();
+  let instaListContract = InstaList.bind(instaIndex.instaListAddress as Address);
+  let accountID = instaListContract.accountID(event.address);
+  let account = getOrCreateSmartAccount(accountID.toString(), false);
   if (account == null) {
     log.error("LOGCAST - Indexed address for smart account is wrong? {}", [
-      event.address.toHexString()
+      accountID.toString()
     ]);
   } else {
-    let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
-    let castEvent = getOrCreateCastEvent(eventId)
+    let eventId = event.transaction.hash
+      .toHexString()
+      .concat("-")
+      .concat(event.logIndex.toString());
+    let castEvent = getOrCreateCastEvent(eventId);
     let cast = getOrCreateCast(eventId);
 
     castEvent.account = account.id;
     castEvent.origin = event.params.origin;
-    castEvent.sender = event.params.sender
+    castEvent.sender = event.params.sender;
     castEvent.value = event.params.value;
 
     cast.account = account.id;
     cast.origin = event.params.origin;
-    cast.sender = event.params.sender
+    cast.sender = event.params.sender;
     cast.value = event.params.value;
 
     castEvent.save();
@@ -49,22 +57,28 @@ export function handleLogCast(event: LogCast): void {
 //   handler: handleLogDisableSmartAccountOwner
 
 export function handleLogDisableSmartAccountOwner(event: LogDisable): void {
-  let account = getOrCreateSmartAccount(event.address.toHexString(), false);
+  let instaIndex = getOrCreateInstaIndex();
+  let instaListContract = InstaList.bind(instaIndex.instaListAddress as Address);
+  let accountID = instaListContract.accountID(event.address);
+  let account = getOrCreateSmartAccount(accountID.toString(), false);
   if (account == null) {
     log.error("DISABLE - Indexed address for smart account is wrong? {}", [
-      event.address.toHexString()
+      accountID.toString()
     ]);
   } else {
-    let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
+    let eventId = event.transaction.hash
+      .toHexString()
+      .concat("-")
+      .concat(event.logIndex.toString());
     let user = getOrCreateUser(event.params.user.toHexString());
-    let disableEvent = getOrCreateDisableEvent(eventId)
+    let disableEvent = getOrCreateDisableEvent(eventId);
     disableEvent.account = account.id;
     disableEvent.user = user.id;
 
     account.owner = user.id;
     account.isEnabled = false;
 
-    account.save()
+    account.save();
     disableEvent.save();
   }
 }
@@ -73,22 +87,28 @@ export function handleLogDisableSmartAccountOwner(event: LogDisable): void {
 //   handler: handleLogEnableSmartAccountOwner
 
 export function handleLogEnableSmartAccountOwner(event: LogEnable): void {
-  let account = getOrCreateSmartAccount(event.address.toHexString(), false);
+  let instaIndex = getOrCreateInstaIndex();
+  let instaListContract = InstaList.bind(instaIndex.instaListAddress as Address);
+  let accountID = instaListContract.accountID(event.address);
+  let account = getOrCreateSmartAccount(accountID.toString(), false);
   if (account == null) {
     log.error("ENABLE - Indexed address for smart account is wrong? {}", [
-      event.address.toHexString()
+      accountID.toString()
     ]);
   } else {
-    let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
+    let eventId = event.transaction.hash
+      .toHexString()
+      .concat("-")
+      .concat(event.logIndex.toString());
     let user = getOrCreateUser(event.params.user.toHexString());
-    let enableEvent = getOrCreateEnableEvent(eventId)
+    let enableEvent = getOrCreateEnableEvent(eventId);
     enableEvent.account = account.id;
     enableEvent.user = user.id;
 
     account.owner = user.id;
     account.isEnabled = true;
 
-    account.save()
+    account.save();
     enableEvent.save();
   }
 }
@@ -97,14 +117,21 @@ export function handleLogEnableSmartAccountOwner(event: LogEnable): void {
 //   handler: handleLogSwitchShield
 
 export function handleLogSwitchShield(event: LogSwitchShield): void {
-  let account = getOrCreateSmartAccount(event.address.toHexString(), false);
+  let instaIndex = getOrCreateInstaIndex();
+  let instaListContract = InstaList.bind(instaIndex.instaListAddress as Address);
+  let accountID = instaListContract.accountID(event.address);
+  let account = getOrCreateSmartAccount(accountID.toString(), false);
   if (account == null) {
-    log.error("SWITCH SHIELD - Indexed address for smart account is wrong? {}", [
-      event.address.toHexString()
-    ]);
+    log.error(
+      "SWITCH SHIELD - Indexed address for smart account is wrong? {}",
+      [accountID.toString()]
+    );
   } else {
-    let eventId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString());
-    let switchEvent = getOrCreateSwitchShieldEvent(eventId)
+    let eventId = event.transaction.hash
+      .toHexString()
+      .concat("-")
+      .concat(event.logIndex.toString());
+    let switchEvent = getOrCreateSwitchShieldEvent(eventId);
 
     switchEvent.account = account.id;
     switchEvent.shield = event.params._shield;

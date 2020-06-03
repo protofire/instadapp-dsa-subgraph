@@ -27,7 +27,8 @@ export function getOrCreateUser(
 
 export function getOrCreateSmartAccount(
   id: String,
-  createIfNotFound: boolean = true
+  createIfNotFound: boolean = true,
+  address: Address | null = null
 ): SmartAccount {
   let smartAccount = SmartAccount.load(id);
 
@@ -35,7 +36,9 @@ export function getOrCreateSmartAccount(
     smartAccount = new SmartAccount(id);
 
     smartAccount.shield = false;
-    AccountTemplate.create(Address.fromString(id))
+    if(address != null) {
+      AccountTemplate.create(address as Address)
+    }
   }
 
   return smartAccount as SmartAccount;

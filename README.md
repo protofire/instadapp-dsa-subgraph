@@ -8,11 +8,11 @@ Below is a general description of the entities we store. We tried to make it as 
 
 #### SmartAccount
 
-The SmartAccount entity holds the owner and creator address for that SmartAccount, as well as the AccountModule used as a template for the account (which also holds the connectors that the account has, since it was cloned from that module), the shield status, whether the current owner is enabled for authentication or not, and all the events both withing the account scope (modifications to the shield status, disabling and enabling of the owner, and casts), and events within the scope of connectors that the account interacted using casts.
+The SmartAccount entity holds the address and ID of the SmartAccount, the owner and creator address for that SmartAccount, as well as the AccountModule used as a template for the account (which also holds the connectors that the account has, since it was cloned from that module), the shield status, whether the current owner is enabled for authentication or not, and all the events both withing the account scope (modifications to the shield status, disabling and enabling of the owner, and casts), and events within the scope of connectors that the account interacted using casts.
 
 ```graphql
 type SmartAccount @entity {
-  "The ID used for the SmartAccount entity is the address of said smart account"
+  "The ID used for the SmartAccount entity is the accountID for that SmartAccount on the InstaList contract"
   id: ID!
 
   "Latest enabled owner"
@@ -23,7 +23,11 @@ type SmartAccount @entity {
 
   origin: Bytes!
 
+  "AccountID as BigInt according to the InstaList contract"
   accountID: BigInt!
+
+  "Address of the SmartAccount"
+  address: Bytes!
 
   "Account module from which this account was created. It holds the connectors linked to this account."
   accountModule: AccountModule

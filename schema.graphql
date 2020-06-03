@@ -9,7 +9,7 @@ type User @entity {
 }
 
 type SmartAccount @entity {
-  "The ID used for the SmartAccount entity is the address of said smart account"
+  "The ID used for the SmartAccount entity is the accountID for that SmartAccount on the InstaList contract"
   id: ID!
 
   "Latest enabled owner"
@@ -20,7 +20,11 @@ type SmartAccount @entity {
 
   origin: Bytes!
 
+  "AccountID as BigInt according to the InstaList contract"
   accountID: BigInt!
+
+  "Address of the SmartAccount"
+  address: Bytes!
 
   "Account module from which this account was created. It holds the connectors linked to this account."
   accountModule: AccountModule

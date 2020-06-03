@@ -6,8 +6,7 @@ import {
   LogRemoveController
 } from "../../generated/templates/InstaConnectors/InstaConnectors";
 import { LogEvent } from "../../generated/InstaEvents/InstaEvents";
-import { InstaList } from "../../generated/InstaEvents/InstaList";
-import { log, Address } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 import { Connector as ConnectorContract } from "../../generated/templates/InstaConnectors/Connector";
 import {
   getOrCreateConnector,
@@ -124,15 +123,12 @@ export function handleLogEvent(event: LogEvent): void {
   if (connector == null) {
     log.error("Connector '{}' doesn't exist.", [entityId]);
   } else {
-    let index = getOrCreateInstaIndex();
-    let instaListContract = InstaList.bind(index.instaListAddress as Address);
-    let accountAddress = instaListContract.accountAddr(event.params.accountID);
     let eventId = event.transaction.hash
       .toHexString()
       .concat("-")
       .concat(event.logIndex.toString());
     let connectorEvent = getOrCreateConnectorEvent(eventId);
-    connectorEvent.account = accountAddress.toHexString();
+    connectorEvent.account = event.params.accountID.toString();
     connectorEvent.connector = connector.id;
     connectorEvent.eventCode = event.params.eventCode;
     connectorEvent.eventData = event.params.eventData;

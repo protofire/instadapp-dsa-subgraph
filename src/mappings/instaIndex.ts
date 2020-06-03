@@ -24,19 +24,23 @@ import {
 //  event LogAccountCreated(address sender, address indexed owner, address indexed account, address indexed origin);
 
 export function handleLogAccountCreated(event: LogAccountCreated): void {
-  let smartAccount = getOrCreateSmartAccount(
-    event.params.account.toHexString()
-  );
   let owner = getOrCreateUser(event.params.owner.toHexString());
   let sender = getOrCreateUser(event.params.sender.toHexString());
   let index = getOrCreateInstaIndex();
   let instaListContract = InstaList.bind(index.instaListAddress as Address);
+  let dsaID = instaListContract.accountID(event.params.account);
+  let smartAccount = getOrCreateSmartAccount(
+    dsaID.toString(),
+    true,
+    event.params.account as Address
+  );
 
   smartAccount.owner = owner.id;
   smartAccount.creator = sender.id;
   smartAccount.origin = event.params.origin;
   smartAccount.isEnabled = true;
-  smartAccount.accountID = instaListContract.accountID(event.params.account);
+  smartAccount.accountID = dsaID;
+  smartAccount.address = event.params.account;
 
   smartAccount.save();
 }
@@ -110,8 +114,13 @@ export function handleSetBasics(call: SetBasicsCall): void {
 }
 
 export function handleBuild(call: BuildCall): void {
+  let index = getOrCreateInstaIndex();
+  let instaListContract = InstaList.bind(index.instaListAddress as Address);
+  let dsaID = instaListContract.accountID(call.outputs._account);
   let smartAccount = getOrCreateSmartAccount(
-    call.outputs._account.toHexString()
+    dsaID.toString(),
+    true,
+    call.outputs._account as Address
   );
   let owner = getOrCreateUser(call.inputs._owner.toHexString());
 
