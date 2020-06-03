@@ -8,7 +8,8 @@ export {
 export {
   getOrCreateConnector,
   getOrCreateInstaConnector,
-  getOrCreateChief
+  getOrCreateChief,
+  getOrCreateConnectorEvent
 } from "./instaConnectors";
 
 export {

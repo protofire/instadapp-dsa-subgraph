@@ -31,13 +31,13 @@ export function handleLogCast(event: LogCast): void {
     let cast = getOrCreateCast(eventId);
 
     castEvent.account = account.id;
-    castEvent.origin = event.params.origin.toHexString();
-    castEvent.sender = event.params.sender.toHexString()
+    castEvent.origin = event.params.origin;
+    castEvent.sender = event.params.sender
     castEvent.value = event.params.value;
 
     cast.account = account.id;
-    cast.origin = event.params.origin.toHexString();
-    cast.sender = event.params.sender.toHexString()
+    cast.origin = event.params.origin;
+    cast.sender = event.params.sender
     cast.value = event.params.value;
 
     castEvent.save();

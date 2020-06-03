@@ -8,6 +8,8 @@ import {
   BuildCall,
   InstaIndex
 } from "../../generated/InstaIndex/InstaIndex";
+import { InstaList } from "../../generated/InstaIndex/InstaList";
+import { Address } from "@graphprotocol/graph-ts";
 import {
   getOrCreateAccountModule,
   getOrCreateUser,
@@ -27,11 +29,14 @@ export function handleLogAccountCreated(event: LogAccountCreated): void {
   );
   let owner = getOrCreateUser(event.params.owner.toHexString());
   let sender = getOrCreateUser(event.params.sender.toHexString());
+  let index = getOrCreateInstaIndex();
+  let instaListContract = InstaList.bind(index.instaListAddress as Address);
 
   smartAccount.owner = owner.id;
   smartAccount.creator = sender.id;
-  smartAccount.origin = event.params.origin.toHexString();
+  smartAccount.origin = event.params.origin;
   smartAccount.isEnabled = true;
+  smartAccount.accountID = instaListContract.accountID(event.params.account);
 
   smartAccount.save();
 }
@@ -47,9 +52,9 @@ export function handleLogNewAccount(event: LogNewAccount): void {
   let accountModule = getOrCreateAccountModule(accountVersion.toString());
   let instaConnector = getOrCreateInstaConnector(event.params._connectors);
 
-  accountModule.address = event.params._newAccount.toHexString();
+  accountModule.address = event.params._newAccount;
   accountModule.connectors = instaConnector.id;
-  accountModule.check = event.params._check.toHexString();
+  accountModule.check = event.params._check;
 
   accountModule.save();
 }
@@ -62,7 +67,7 @@ export function handleLogNewCheck(event: LogNewCheck): void {
     event.params.accountVersion.toString()
   );
 
-  accountModule.check = event.params.check.toHexString();
+  accountModule.check = event.params.check;
 
   accountModule.save();
 }
@@ -73,7 +78,7 @@ export function handleLogNewCheck(event: LogNewCheck): void {
 export function handleLogNewMaster(event: LogNewMaster): void {
   let index = getOrCreateInstaIndex();
 
-  index.master = event.params.master.toHexString();
+  index.master = event.params.master;
 
   index.save();
 }
@@ -84,19 +89,23 @@ export function handleLogNewMaster(event: LogNewMaster): void {
 export function handleLogUpdateMaster(event: LogUpdateMaster): void {
   let index = getOrCreateInstaIndex();
 
-  index.master = event.params.master.toHexString();
+  index.master = event.params.master;
 
   index.save();
 }
 
 export function handleSetBasics(call: SetBasicsCall): void {
+  let instaIndex = getOrCreateInstaIndex();
   let accountVersion = InstaIndex.bind(call.to).versionCount();
   let accountModule = getOrCreateAccountModule(accountVersion.toString());
   let instaConnector = getOrCreateInstaConnector(call.inputs._connectors);
 
-  accountModule.address = call.inputs._account.toHexString();
+  accountModule.address = call.inputs._account;
   accountModule.connectors = instaConnector.id;
 
+  instaIndex.instaListAddress = call.inputs._list;
+
+  instaIndex.save();
   accountModule.save();
 }
 
@@ -107,7 +116,7 @@ export function handleBuild(call: BuildCall): void {
   let owner = getOrCreateUser(call.inputs._owner.toHexString());
 
   smartAccount.owner = owner.id;
-  smartAccount.origin = call.inputs._origin.toHexString();
+  smartAccount.origin = call.inputs._origin;
   smartAccount.accountModule = call.inputs.accountVersion.toString();
 
   smartAccount.save();

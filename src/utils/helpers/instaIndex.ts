@@ -58,10 +58,10 @@ export function getOrCreateAccountModule(
 }
 
 export function getOrCreateInstaIndex(): InstaIndex {
-  let index = InstaIndex.load("INDEX");
+  let index = InstaIndex.load("0x2971adfa57b20e5a416ae5a708a8655a9c74f723");
 
   if (index == null) {
-    index = new InstaIndex("INDEX");
+    index = new InstaIndex("0x2971adfa57b20e5a416ae5a708a8655a9c74f723");
     index.save();
   }
 

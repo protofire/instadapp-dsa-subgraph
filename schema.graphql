@@ -9,6 +9,7 @@ type User @entity {
 }
 
 type SmartAccount @entity {
+  "The ID used for the SmartAccount entity is the address of said smart account"
   id: ID!
 
   "Latest enabled owner"
@@ -17,7 +18,9 @@ type SmartAccount @entity {
   "Sender of the creation transaction"
   creator: User
 
-  origin: String!
+  origin: Bytes!
+
+  accountID: BigInt!
 
   "Account module from which this account was created. It holds the connectors linked to this account."
   accountModule: AccountModule
@@ -31,7 +34,10 @@ type SmartAccount @entity {
   casts: [Cast!]! @derivedFrom(field: "account")
 
   "Events that ocurred within this account scope"
-  events: [SmartAccountEvent!]! @derivedFrom(field: "account")
+  accountEvents: [SmartAccountEvent!]! @derivedFrom(field: "account")
+
+  "Events triggered by this account withing a connectors' scope"
+  connectorEvents: [ConnectorEvent!]! @derivedFrom(field: "account")
 }
 
 type AccountModule @entity {
@@ -39,12 +45,12 @@ type AccountModule @entity {
   id: ID!
 
   "Base address of the module"
-  address: String!
+  address: Bytes!
 
   "InstaConnectors contract linked to this module. It holds a list of linked connectors as well as chief/admin information for that contract."
   connectors: InstaConnector!
 
-  check: String
+  check: Bytes
 
   instaIndex: InstaIndex!
 
@@ -56,7 +62,9 @@ type InstaIndex @entity {
   id: ID!
 
   "Address of the current master"
-  master: String
+  master: Bytes
+
+  instaListAddress: Bytes
 
   accountModules: [AccountModule!]! @derivedFrom(field: "instaIndex")
 }
@@ -71,7 +79,7 @@ type InstaConnector @entity {
 }
 
 type Connector @entity {
-  "Connector ID includes the ID of the InstaConnector it belongs to and the internal ID of the connector"
+  "ID used for this entity includes the internal ID of the connector and it's type"
   id: ID!
 
   "Whether this connector is a Static Connector or not."
@@ -93,7 +101,10 @@ type Connector @entity {
   connectorType: BigInt!
 
   "Address for said connector"
-  address: String!
+  address: Bytes!
+
+  "ConnectorEvents that were triggered for this connector"
+  events: [ConnectorEvent!]! @derivedFrom(field: "connector")
 }
 
 type Chief @entity {
@@ -110,9 +121,9 @@ type Cast @entity {
   "Account that triggered the cast"
   account: SmartAccount!
 
-  origin: String!
+  origin: Bytes!
 
-  sender: String!
+  sender: Bytes!
 
   value: BigInt!
 }
@@ -129,9 +140,9 @@ type CastEvent implements SmartAccountEvent @entity {
 
   account: SmartAccount!
 
-  origin: String!
+  origin: Bytes!
 
-  sender: String!
+  sender: Bytes!
 
   value: BigInt!
 }
@@ -158,4 +169,16 @@ type SwitchShieldEvent implements SmartAccountEvent @entity {
   account: SmartAccount!
 
   shield: Boolean!
+}
+
+type ConnectorEvent @entity {
+  id: ID!
+
+  connector: Connector!
+
+  account: SmartAccount!
+
+  eventCode: Bytes!
+
+  eventData: Bytes!
 }

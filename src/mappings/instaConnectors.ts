@@ -5,8 +5,16 @@ import {
   LogAddController,
   LogRemoveController
 } from "../../generated/templates/InstaConnectors/InstaConnectors";
+import { LogEvent } from "../../generated/InstaEvents/InstaEvents";
+import { InstaList } from "../../generated/InstaEvents/InstaList";
+import { log, Address } from "@graphprotocol/graph-ts";
 import { Connector as ConnectorContract } from "../../generated/templates/InstaConnectors/Connector";
-import { getOrCreateConnector, getOrCreateChief } from "../utils/helpers";
+import {
+  getOrCreateConnector,
+  getOrCreateChief,
+  getOrCreateConnectorEvent,
+  getOrCreateInstaIndex
+} from "../utils/helpers";
 
 // - event: LogDisable(indexed address)
 //   handler: handleLogDisableConnector
@@ -15,15 +23,16 @@ export function handleLogDisableConnector(event: LogDisable): void {
   let contract = ConnectorContract.bind(event.params.connector);
   let connectorIDResult = contract.connectorID();
   let instaConnectorAddress = event.address.toHexString();
-  let entityId = instaConnectorAddress
+  let entityId = connectorIDResult.value1
+    .toString()
     .concat("-")
-    .concat(connectorIDResult.value1.toString());
+    .concat(connectorIDResult.value0.toString());
   let connector = getOrCreateConnector(entityId);
 
   connector.isEnabled = false;
   connector.instaConnector = event.address.toHexString();
   connector.name = contract.name();
-  connector.address = event.params.connector.toHexString();
+  connector.address = event.params.connector
   connector.connectorType = connectorIDResult.value0;
   connector.connectorID = connectorIDResult.value1;
 
@@ -37,16 +46,17 @@ export function handleLogEnableConnector(event: LogEnable): void {
   let contract = ConnectorContract.bind(event.params.connector);
   let connectorIDResult = contract.connectorID();
   let instaConnectorAddress = event.address.toHexString();
-  let entityId = instaConnectorAddress
+  let entityId = connectorIDResult.value1
+    .toString()
     .concat("-")
-    .concat(connectorIDResult.value1.toString());
+    .concat(connectorIDResult.value0.toString());
   let connector = getOrCreateConnector(entityId);
 
   connector.isEnabled = true;
   connector.isStatic = false;
   connector.instaConnector = event.address.toHexString();
   connector.name = contract.name();
-  connector.address = event.params.connector.toHexString();
+  connector.address = event.params.connector;
   connector.connectorType = connectorIDResult.value0;
   connector.connectorID = connectorIDResult.value1;
 
@@ -60,16 +70,17 @@ export function handleLogEnableStaticConnector(event: LogEnableStatic): void {
   let contract = ConnectorContract.bind(event.params.connector);
   let connectorIDResult = contract.connectorID();
   let instaConnectorAddress = event.address.toHexString();
-  let entityId = instaConnectorAddress
+  let entityId = connectorIDResult.value1
+    .toString()
     .concat("-")
-    .concat(connectorIDResult.value1.toString());
+    .concat(connectorIDResult.value0.toString());
   let connector = getOrCreateConnector(entityId);
 
   connector.isEnabled = true;
   connector.isStatic = true;
   connector.instaConnector = instaConnectorAddress;
   connector.name = contract.name();
-  connector.address = event.params.connector.toHexString();
+  connector.address = event.params.connector;
   connector.connectorType = connectorIDResult.value0;
   connector.connectorID = connectorIDResult.value1;
 
@@ -80,22 +91,52 @@ export function handleLogEnableStaticConnector(event: LogEnableStatic): void {
 //   handler: handleLogAddController
 
 export function handleLogAddController(event: LogAddController): void {
-  let chief = getOrCreateChief(event.params.addr.toHexString())
+  let chief = getOrCreateChief(event.params.addr.toHexString());
 
   chief.isActive = true;
   chief.instaConnector = event.address.toHexString();
 
-  chief.save()
+  chief.save();
 }
 
 // - event: LogRemoveController(indexed address)
 //   handler: handleLogRemoveController
 
 export function handleLogRemoveController(event: LogRemoveController): void {
-  let chief = getOrCreateChief(event.params.addr.toHexString())
+  let chief = getOrCreateChief(event.params.addr.toHexString());
 
   chief.isActive = false;
   chief.instaConnector = event.address.toHexString();
 
-  chief.save()
+  chief.save();
+}
+
+// - event: LogEvent(uint64,indexed uint64,indexed uint64,indexed bytes32,bytes)
+//   handler: handleLogEvent
+
+export function handleLogEvent(event: LogEvent): void {
+  let entityId = event.params.connectorID
+    .toString()
+    .concat("-")
+    .concat(event.params.connectorType.toString());
+  let connector = getOrCreateConnector(entityId, false);
+
+  if (connector == null) {
+    log.error("Connector '{}' doesn't exist.", [entityId]);
+  } else {
+    let index = getOrCreateInstaIndex();
+    let instaListContract = InstaList.bind(index.instaListAddress as Address);
+    let accountAddress = instaListContract.accountAddr(event.params.accountID);
+    let eventId = event.transaction.hash
+      .toHexString()
+      .concat("-")
+      .concat(event.logIndex.toString());
+    let connectorEvent = getOrCreateConnectorEvent(eventId);
+    connectorEvent.account = accountAddress.toHexString();
+    connectorEvent.connector = connector.id;
+    connectorEvent.eventCode = event.params.eventCode;
+    connectorEvent.eventData = event.params.eventData;
+
+    connectorEvent.save();
+  }
 }

@@ -1,5 +1,5 @@
 import { InstaConnectors as ConnectorsTemplate } from "../../../generated/templates";
-import { InstaConnector, Connector, Chief } from "../../../generated/schema";
+import { InstaConnector, Connector, Chief, ConnectorEvent } from "../../../generated/schema";
 import { Address } from "@graphprotocol/graph-ts";
 
 export function getOrCreateInstaConnector(
@@ -42,4 +42,17 @@ export function getOrCreateChief(
   }
 
   return chief as Chief;
+}
+
+export function getOrCreateConnectorEvent(
+  id: String,
+  createIfNotFound: boolean = true
+): ConnectorEvent {
+  let event = ConnectorEvent.load(id);
+
+  if (event == null && createIfNotFound) {
+    event = new ConnectorEvent(id);
+  }
+
+  return event as ConnectorEvent;
 }

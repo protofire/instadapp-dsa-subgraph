@@ -13,7 +13,8 @@ export {
   handleLogDisableConnector,
   handleLogEnableStaticConnector,
   handleLogAddController,
-  handleLogRemoveController
+  handleLogRemoveController,
+  handleLogEvent
 } from "./mappings/instaConnectors";
 
 export {

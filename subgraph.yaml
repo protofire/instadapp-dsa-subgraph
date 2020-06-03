@@ -22,6 +22,8 @@ dataSources:
       abis:
         - name: InstaIndex
           file: ./abis/InstaIndex.json
+        - name: InstaList
+          file: ./abis/InstaList.json
       eventHandlers:
         - event: LogAccountCreated(address,indexed address,indexed address,indexed address)
           handler: handleLogAccountCreated
@@ -38,6 +40,30 @@ dataSources:
           handler: handleSetBasics
         - function: build(address,uint256,address)
           handler: handleBuild
+  - kind: ethereum/contract
+    name: InstaEvents
+    network: mainnet
+    source:
+      address: "0x2af7ea6cb911035f3eb1ed895cb6692c39ecba97"
+      abi: InstaEvents
+      startBlock: 9747294
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/index.ts
+      entities:
+        - SmartAccount
+        - Connector
+        - ConnectorEvent
+      abis:
+        - name: InstaEvents
+          file: ./abis/InstaEvents.json
+        - name: InstaList
+          file: ./abis/InstaList.json
+      eventHandlers:
+        - event: LogEvent(uint64,indexed uint64,indexed uint64,indexed bytes32,bytes)
+          handler: handleLogEvent
 templates:
   - name: InstaConnectors
     kind: ethereum/contract
