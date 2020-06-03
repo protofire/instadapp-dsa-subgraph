@@ -8,10 +8,11 @@ Below is a general description of the entities we store. We tried to make it as 
 
 #### SmartAccount
 
-The SmartAccount entity holds the owner and creator address for that SmartAccount, as well as the AccountModule used as a template for the account (which also holds the connectors that the account has, since it was cloned from that module), the shield status, whether the current owner is enabled for authentication or not, and all the Casts executed for that Account, as well as the events that occur withing that Account scope (modifications to the shield status, disabling and enabling of the owner, and casts).
+The SmartAccount entity holds the owner and creator address for that SmartAccount, as well as the AccountModule used as a template for the account (which also holds the connectors that the account has, since it was cloned from that module), the shield status, whether the current owner is enabled for authentication or not, and all the events both withing the account scope (modifications to the shield status, disabling and enabling of the owner, and casts), and events within the scope of connectors that the account interacted using casts.
 
 ```graphql
 type SmartAccount @entity {
+  "The ID used for the SmartAccount entity is the address of said smart account"
   id: ID!
 
   "Latest enabled owner"
@@ -20,7 +21,9 @@ type SmartAccount @entity {
   "Sender of the creation transaction"
   creator: User
 
-  origin: String!
+  origin: Bytes!
+
+  accountID: BigInt!
 
   "Account module from which this account was created. It holds the connectors linked to this account."
   accountModule: AccountModule
@@ -34,20 +37,25 @@ type SmartAccount @entity {
   casts: [Cast!]! @derivedFrom(field: "account")
 
   "Events that ocurred within this account scope"
-  events: [SmartAccountEvent!]! @derivedFrom(field: "account")
+  accountEvents: [SmartAccountEvent!]! @derivedFrom(field: "account")
+
+  "Events triggered by this account withing a connectors' scope"
+  connectorEvents: [ConnectorEvent!]! @derivedFrom(field: "account")
 }
 ```
 
 #### InstaIndex
 
-The InstaIndex is the main contract of the DSA ecosystem. It allows us to track AccountModule creation, SmartAccount creation, as well as changes to the master of said contract. We currently track an InstaIndex entity since we wanted to keep track of the current master for the contract, as well as the AccountModules currently listed on the index.
+The InstaIndex is the main contract of the DSA ecosystem. It allows us to track AccountModule creation, SmartAccount creation, as well as changes to the master of said contract. We currently track an InstaIndex entity since we wanted to keep track of the InstaList contract address and the current master for the contract, as well as the AccountModules currently listed on the index.
 
 ```graphql
 type InstaIndex @entity {
   id: ID!
 
   "Address of the current master"
-  master: String
+  master: Bytes
+
+  instaListAddress: Bytes
 
   accountModules: [AccountModule!]! @derivedFrom(field: "instaIndex")
 }
@@ -63,12 +71,12 @@ type AccountModule @entity {
   id: ID!
 
   "Base address of the module"
-  address: String!
+  address: Bytes!
 
   "InstaConnectors contract linked to this module. It holds a list of linked connectors as well as chief/admin information for that contract."
   connectors: InstaConnector!
 
-  check: String
+  check: Bytes
 
   instaIndex: InstaIndex!
 
@@ -94,12 +102,11 @@ type InstaConnector @entity {
 
 #### Connector
 
-Connectors are the part of the DSA ecosystem that allows SmartAccounts to interact with external DeFi platforms in a seamless manner. They are contracts specific for each platform but they all have some basic interface in common. We currently track as much generic data as possible, but some Connectors might have relevant information specific for that contract in Ethereum events.
+Connectors are the part of the DSA ecosystem that allows SmartAccounts to interact with external DeFi platforms in a seamless manner. They are contracts specific for each platform but they all have some basic interface in common. We currently track as much generic data as possible, including the specific events for each connector, but stored as raw bytes in the ConnectorEvent entity.
 
 ```graphql
-
 type Connector @entity {
-  "Connector ID includes the ID of the InstaConnector it belongs to and the internal ID of the connector"
+  "ID used for this entity includes the internal ID of the connector and it's type"
   id: ID!
 
   "Whether this connector is a Static Connector or not."
@@ -121,7 +128,10 @@ type Connector @entity {
   connectorType: BigInt!
 
   "Address for said connector"
-  address: String!
+  address: Bytes!
+
+  "ConnectorEvents that were triggered for this connector"
+  events: [ConnectorEvent!]! @derivedFrom(field: "connector")
 }
 ```
 
@@ -138,5 +148,24 @@ type User @entity {
 
   "List of all the smart accounts created by this user"
   smartAccountsCreated: [SmartAccount!]! @derivedFrom(field:"creator")
+}
+```
+
+
+#### ConnectorEvent
+
+This entity represents a single connector-specific event, as emitted on the InstaEvents contract (raw bytes). It has an eventCode (keccak256 hash of the event signature), as well as the eventData bytes and links to both the SmartAccount that casted it and the Connector that triggered the event.
+
+```graphql
+type ConnectorEvent @entity {
+  id: ID!
+
+  connector: Connector!
+
+  account: SmartAccount!
+
+  eventCode: Bytes!
+
+  eventData: Bytes!
 }
 ```
