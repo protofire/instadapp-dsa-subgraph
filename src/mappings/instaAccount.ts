@@ -42,11 +42,17 @@ export function handleLogCast(event: LogCast): void {
     castEvent.origin = event.params.origin;
     castEvent.sender = event.params.sender;
     castEvent.value = event.params.value;
+    castEvent.tx_hash = event.transaction.hash.toHexString();
+    castEvent.block = event.block.number;
+    castEvent.logIndex = event.logIndex;
 
     cast.account = account.id;
     cast.origin = event.params.origin;
     cast.sender = event.params.sender;
     cast.value = event.params.value;
+    cast.tx_hash = event.transaction.hash.toHexString();
+    cast.block = event.block.number;
+    cast.logIndex = event.logIndex;
 
     castEvent.save();
     cast.save();
@@ -74,6 +80,9 @@ export function handleLogDisableSmartAccountOwner(event: LogDisable): void {
     let disableEvent = getOrCreateDisableEvent(eventId);
     disableEvent.account = account.id;
     disableEvent.user = user.id;
+    disableEvent.tx_hash = event.transaction.hash.toHexString();
+    disableEvent.block = event.block.number;
+    disableEvent.logIndex = event.logIndex;
 
     account.owner = user.id;
     account.isEnabled = false;
@@ -104,6 +113,9 @@ export function handleLogEnableSmartAccountOwner(event: LogEnable): void {
     let enableEvent = getOrCreateEnableEvent(eventId);
     enableEvent.account = account.id;
     enableEvent.user = user.id;
+    enableEvent.tx_hash = event.transaction.hash.toHexString();
+    enableEvent.block = event.block.number;
+    enableEvent.logIndex = event.logIndex;
 
     account.owner = user.id;
     account.isEnabled = true;
@@ -132,9 +144,11 @@ export function handleLogSwitchShield(event: LogSwitchShield): void {
       .concat("-")
       .concat(event.logIndex.toString());
     let switchEvent = getOrCreateSwitchShieldEvent(eventId);
-
     switchEvent.account = account.id;
     switchEvent.shield = event.params._shield;
+    switchEvent.tx_hash = event.transaction.hash.toHexString();
+    switchEvent.block = event.block.number;
+    switchEvent.logIndex = event.logIndex;
 
     account.shield = event.params._shield;
 

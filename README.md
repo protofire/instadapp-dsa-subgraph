@@ -171,5 +171,11 @@ type ConnectorEvent @entity {
   eventCode: Bytes!
 
   eventData: Bytes!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 ```

@@ -132,6 +132,9 @@ export function handleLogEvent(event: LogEvent): void {
     connectorEvent.connector = connector.id;
     connectorEvent.eventCode = event.params.eventCode;
     connectorEvent.eventData = event.params.eventData;
+    connectorEvent.tx_hash = event.transaction.hash.toHexString();
+    connectorEvent.block = event.block.number;
+    connectorEvent.logIndex = event.logIndex;
 
     connectorEvent.save();
   }

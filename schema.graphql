@@ -130,6 +130,12 @@ type Cast @entity {
   sender: Bytes!
 
   value: BigInt!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 
 interface SmartAccountEvent {
@@ -137,6 +143,12 @@ interface SmartAccountEvent {
 
   "Account scope of the event"
   account: SmartAccount!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 
 type CastEvent implements SmartAccountEvent @entity {
@@ -149,6 +161,12 @@ type CastEvent implements SmartAccountEvent @entity {
   sender: Bytes!
 
   value: BigInt!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 
 type DisableEvent implements SmartAccountEvent @entity {
@@ -157,6 +175,12 @@ type DisableEvent implements SmartAccountEvent @entity {
   account: SmartAccount!
 
   user: User!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 
 type EnableEvent implements SmartAccountEvent @entity {
@@ -165,6 +189,12 @@ type EnableEvent implements SmartAccountEvent @entity {
   account: SmartAccount!
 
   user: User!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 
 type SwitchShieldEvent implements SmartAccountEvent @entity {
@@ -173,6 +203,12 @@ type SwitchShieldEvent implements SmartAccountEvent @entity {
   account: SmartAccount!
 
   shield: Boolean!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
 
 type ConnectorEvent @entity {
@@ -185,4 +221,10 @@ type ConnectorEvent @entity {
   eventCode: Bytes!
 
   eventData: Bytes!
+
+  tx_hash: String!
+
+  block: BigInt!
+
+  logIndex: BigInt!
 }
